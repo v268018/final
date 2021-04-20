@@ -59,6 +59,7 @@ const app ={
                     allowEmpty: false,
                     message:"必填"
                 },
+              
             },
             "Email": {
                 presence:{message:"必填"},
@@ -126,26 +127,34 @@ const app ={
             console.log(err);
         })
     },
-    addCart(vm,id){//產品加入購物車
-        const url=`${vm.data.baseUrl}/api/livejs/v1/customer/${vm.data.api_path}/carts`;
-        let productNum = 1;
-        vm.data.orderData.forEach(item=>{
-            if(item.product.id===id){
-                productNum += item.quantity;
-            }
-        })
-        axios.post(url,{
-                "data": {
-                  "productId":id,  
-                  "quantity":productNum,
+    addCart(){//註冊產品加入購物車
+        const productsList=document.querySelector('.productsList');//產品列表
+        productsList.addEventListener('click',(e)=>{
+            console.log(e.target.dataset.id);
+            if(e.target.dataset.id===undefined){//檢查是否點擊購物車的按鈕
+                return
+            };
+            let id =e.target.dataset.id;//產品id
+            const url=`${this.data.baseUrl}/api/livejs/v1/customer/${this.data.api_path}/carts`;
+            let productNum = 1;
+            this.data.orderData.forEach(item=>{
+                if(item.product.id===id){
+                    productNum += item.quantity;
                 }
-        }).then(res=>{  
-            console.log(res);
-            swal("訂單成立", "歡迎再次下單", "success");
-            vm.getCartData();
-        }).catch(err=>{
-            console.log(err.response);
-        })
+            })
+            axios.post(url,{
+                    "data": {
+                    "productId":id,  
+                    "quantity":productNum,
+                    }
+            }).then(res=>{  
+                console.log(res);
+                swal("訂單成立", "歡迎再次下單", "success");
+                this.getCartData();
+            }).catch(err=>{
+                console.log(err.response);
+            })
+        });   
     },
     plusCart(e,index){//修改產品數量++
        const url=`${this.data.baseUrl}/api/livejs/v1/customer/${this.data.api_path}/carts`;
@@ -195,6 +204,7 @@ const app ={
         });
     },
     renderData(item){//印出產品畫面字串
+        const productsList=document.querySelector('.productsList');//產品列表
         this.data.productsListStr+= `<li class="card-group col col-sm-6 col-md-3">
         <div class="card border-0">
             <img src="${item.images}" class="card-img-top img-fluid" alt="...">
@@ -227,16 +237,7 @@ const app ={
                 }
             });    
         }
-        productsList.innerHTML=this.data.productsListStr;
-        productsList.addEventListener('click',(e)=>{
-            console.log(e.target.dataset.id);
-            const vm =this;
-            if(e.target.dataset.id===undefined){//檢查是否點擊購物車的按鈕
-                return
-            };
-            let id =e.target.dataset.id;//產品id
-            vm.addCart(vm,id);
-        });       
+        productsList.innerHTML=this.data.productsListStr;  
     },
     getCartData(){//取得購物車列表
         const url =`${this.data.baseUrl}/api/livejs/v1/customer/${this.data. api_path}/carts`;
@@ -353,7 +354,8 @@ const app ={
     },
     init(){//初始化
         this.getProductData();//取得產品資料
-        this.selectProductData();//取得選擇類型資料
+        this.selectProductData();//註冊選擇類型資料
+        this.addCart();//註冊產品加入購物車
         this.getCartData();//取得購物車資料
         this.checkForm();//初始化表單
     }
