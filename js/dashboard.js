@@ -1,4 +1,3 @@
-
 //目標
 //渲染畫面把資料印出
 //編輯訂購人資訊
@@ -58,78 +57,40 @@ const app = {
         productsPrice.sort((a,b)=>{
             return b[1]-a[1]
         })
-        const productsPriceRank=[];//排序品項價錢排名
-        const otherTotal=[];//其他產品總價
-        const colors =['#DACBFF','#9D7FEA','#9D7FEA','#301E5F'];
-        const productsRankColor={};
-        let otherPrice=0;
-        //排序品項價錢排名
-        if(productsPrice.length===1){//防止沒有第三名
-            productsPriceRank.push(productsPrice[0]);
-            productsPriceRank.forEach((item,index)=>{
-                if(productsRankColor[item[0]]===undefined){        
-                    productsRankColor[item[0]]=colors[index];
-                } 
-            });
-        }else if(productsPrice.length===2){//防止沒有第三名
-            productsPriceRank.push(productsPrice[0]);
-            productsPriceRank.push(productsPrice[1]);
-            productsPriceRank.forEach((item,index)=>{
-                if(productsRankColor[item[0]]===undefined){        
-                    productsRankColor[item[0]]=colors[index];
-                } 
-            });
-        }else if(productsPrice.length===3){//防止沒有第三名
-            productsPriceRank.push(productsPrice[0]);
-            productsPriceRank.push(productsPrice[1]);
-            productsPriceRank.push(productsPrice[2]);
-            productsPriceRank.forEach((item,index)=>{
-                if(productsRankColor[item[0]]===undefined){        
-                    productsRankColor[item[0]]=colors[index];
-                } 
-            });
-        }else{//有第三名之後加入其他
-            productsPriceRank.push(productsPrice[0]);
-            productsPriceRank.push(productsPrice[1]);
-            productsPriceRank.push(productsPrice[2]);
-            for (let i = 3; i <productsPrice.length; i++) {
-                otherPrice+=productsPrice[i][1];
-            }
-            otherTotal.push('其他');
-            otherTotal.push(otherPrice);
-            productsPriceRank.push(otherTotal);
-            const productsRank=[];
-            productsPriceRank.forEach(item=>{
-                productsRank.push(item[0]);
+        //判斷產品排名是否超過三筆
+        if(productsPrice.length>3){
+            let total =0;
+            productsPrice.forEach((item,index)=>{
+                if(index>2){
+                    total+=productsPrice[index][1];
+                }
             })
-            console.log(productsPriceRank);
-            productsPriceRank.forEach((item,index)=>{
-                if(productsRankColor[item[0]]===undefined){        
-                    productsRankColor[item[0]]=colors[index];
-                } 
-            });
-            console.log(productsRankColor);
+            productsPrice.splice(3,productsPrice.length);
+            productsPrice.push(['其他',total]);
+            console.log(productsPrice);
         }
         const chart = c3.generate({
             data: {
                 type : 'pie',
-                columns:productsPriceRank,
-                colors:productsRankColor,            
+                columns:productsPrice,     
             },
+            color: {
+                pattern: ["#301E5F", "#5434A7", "#9D7FEA", "#DACBFF"],
+            }   
         });
     },
     //刪除全部訂購人資料
     removeAllOrder(e,vm){
-        console.log(123);
-        const url =`https://hexschoollivejs.herokuapp.com/api/livejs/v1/admin/v268018/orders
-        `
-        axios.delete(url,vm.data.config)
-        .then(res=>{
-            vm.data.orderData=res.data.orders;
-            vm.Render();
-        }).catch(err=>{
-            console.log(err);
-        })
+            const url =`https://hexschoollivejs.herokuapp.com/api/livejs/v1/admin/v268018/orders
+            `
+            axios.delete(url,vm.data.config)
+            .then(res=>{
+                vm.data.orderData=res.data.orders;
+                swal("已全數刪除購物車", "歡迎再次選購", "success");
+                vm.Render();
+            }).catch(err=>{
+                console.log(err);
+            })
     },
     //刪除特定訂購人資料
     removeOrder(e,vm){
@@ -139,6 +100,7 @@ const app = {
         axios.delete(url,vm.data.config)
         .then(res=>{
             vm.data.orderData=res.data.orders;
+            swal("訂單刪除成功", "已清空", "success");
             vm.Render();
         }).catch(err=>{
             console.log(err);
@@ -150,11 +112,17 @@ const app = {
         const url=`https://hexschoollivejs.herokuapp.com/api/livejs/v1/admin/v268018/orders
         `;
         const id = e.target.dataset.id //訂購訂單
+        let paidState;
+        vm.data.orderData.forEach(item=>{//抓取訂單的付款狀況
+            if(item.id===id){
+                paidState=item.paid;
+            }
+        })
         axios.put(url,
             {
                 "data": {
                 "id": id,
-                "paid":true,
+                "paid":!paidState,//切換付款
                 }
             },
             vm.data.config,
@@ -180,12 +148,13 @@ const app = {
             chart.classList.add('d-none');
             noOrder.classList.remove('d-none');
         }
+        console.log(this.data.orderData);
         //印出訂購人資訊
         this.data.orderData.forEach(item=>{
             let millisecond = Number(item.createdAt + "000");
             let productsStr ='';
             item.products.forEach(item=>{//收集訂購人商品資訊
-                productsStr+=`<p class="mb-0">${item.title}</p>`;
+                productsStr+=`<p class="mb-0">${item.title}x${item.quantity}</p>`;
             })
             orderListStr+=`
                 <tr>
@@ -195,7 +164,7 @@ const app = {
                     <td class="align-middle">${item.user.email}</td>
                     <td class="align-middle">${productsStr}</td>
                     <td class="align-middle">${new Date(millisecond).toLocaleDateString()}</td>
-                    <td class="align-middle"><a href="#" data-id="${item.id}" class="editOrderBtn">${item.paid?"以處理":"未處理"}</a></td>
+                    <td class="align-middle"><a href="#" data-id="${item.id}" class="editOrderBtn">${item.paid?"已支付":"未支付"}</a></td>
                     <td class="align-middle">
                         <button data-id="${item.id}" class="btn btn-outline-danger removeOrderBtn">刪除</button>
                       
@@ -223,7 +192,28 @@ const app = {
         const removeAllBtn =document.querySelector('.removeAllBtn');
         removeAllBtn.addEventListener('click',(e)=>{
             const vm =this;
-            this.removeAllOrder(e,vm);
+            if(this.data.orderData.length<=0){//檢查是否還有訂單數
+                alert('尚無訂單');
+                return
+            }
+            swal({//防止使用者全數刪除給予判斷
+                title:"清除全部購物車",
+                icon:"warning",
+                buttons: {
+                    cancel: {
+                      text: "取消",
+                      visible: true
+                    },
+                    danger: {
+                      text: "確定",
+                      visible: true
+                    }
+                }
+            }).then((value) => {//接收到選取到的按鈕
+                if(value==='danger'){
+                    vm.removeAllOrder(e,vm);
+                }
+            });
         });
     },
     //初始化

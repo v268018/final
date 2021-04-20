@@ -43,6 +43,7 @@ const app ={
             swal("已送出訂單", "感謝您的訂購","success");
             this.getCartData();
         }).catch(err=>{
+            swal("送出訂單失敗", "請重新確認","warning");
             console.log(err);
         })
     },
@@ -59,11 +60,18 @@ const app ={
                     allowEmpty: false,
                     message:"必填"
                 },
-              
+                // format: {
+                //     pattern: /^09\d{2}-?\d{3}-?\d{3}$/,//檢查台灣手機格式
+                //     message: "格式有錯誤",
+                // },
+                length:{
+                        minimum: 8,
+                        message: "需超過 8 碼"
+                },
             },
             "Email": {
                 presence:{message:"必填"},
-                email: true,//email格式需正確
+                email:{message:"格式錯誤"},
             },
             "寄送地址":{
                 presence:{
@@ -108,9 +116,9 @@ const app ={
         const url =`${this.data.baseUrl}/api/livejs/v1/customer/${this.data.api_path}/carts`
         axios.delete(url)
         .then(res=>{
-            console.log(res);
             this.getCartData();
         }).catch(err=>{
+            swal("刪除全部購物車失敗", "請重新確認","warning");
             console.log(err.response);
         })
     },
@@ -124,6 +132,7 @@ const app ={
             swal("訂單刪除成功", "歡迎再次下單", "success");
             this.getCartData();
         }).catch(err=>{
+            swal("刪除購物車失敗", "請重新確認","warning");
             console.log(err);
         })
     },
@@ -169,6 +178,7 @@ const app ={
        ).then(res=>{
            this.getCartData();
        }).catch(err=>{
+           swal("修改產品數量失敗", "請重新確認","warning");
            console.log(err);
        })
     },
@@ -188,6 +198,7 @@ const app ={
                ).then(res=>{
                    this.getCartData();
                }).catch(err=>{
+                swal("修改產品數量失敗", "請重新確認","warning");
                    console.log(err);
                })
         }
@@ -212,9 +223,9 @@ const app ={
             <div class="card-body">
                 <p class="card-title font-M text-Bold mb-2">${item.title}</p>
                 <p class="card-text  font-M text-Bold mb-2">
-                    <del>NT$${item.origin_price}</del>
+                    <del>NT$${this.toThousands(item.origin_price)}</del>
                 </p>
-                <p class="card-text font-XL text-Bold">NT$${item.price}</p>
+                <p class="card-text font-XL text-Bold">NT$${this.toThousands(item.price)}</p>
             </div>
         </div>
         </li>`
@@ -264,7 +275,7 @@ const app ={
                             <img src=${item.product.images} alt="" class="cart-Img img-fluid mr-3">
                             ${item.product.title}
                         </th>
-                        <td class="align-middle">NT$${item.product.price}</td>
+                        <td class="align-middle">NT$${this.toThousands(item.product.price)}</td>
                         <td class="align-middle">
                             <a href="#" class="minusCart">
                                 <i class="fas fa-minus"></i>
@@ -274,7 +285,7 @@ const app ={
                                 <i class="fas fa-plus"></i>
                             </a>
                         </td>
-                        <td class="align-middle">NT$${item.product.price*item.quantity}</td>
+                        <td class="align-middle">NT$${this.toThousands(item.product.price*item.quantity)}</td>
                         <td class="align-middle">
                             <a href="#" class="removeOrder">
                                 <i class="far fa-trash-alt" data-id=${item.id}></i>   
@@ -288,7 +299,7 @@ const app ={
                             <button class="btn-outline-dark btn removeAllOrder">刪除所有品項</button>
                         </th>
                         <td class="font-M align-middle text-Bold">總金額</td>
-                        <td class="font-XL align-middle text-Bold">NT$${total}</td>
+                        <td class="font-XL align-middle text-Bold">NT$${this.toThousands(total)}</td>
                 </tr>`; 
                 //修改購物車++
                 const plusCart =document.querySelectorAll('.plusCart');//加數量
@@ -339,6 +350,7 @@ const app ={
                 })
             }
         }).catch(err=>{
+            swal("取得購物車資料錯誤", "請重新確認","warning");
             console.log(err);
         })
     },
@@ -349,6 +361,7 @@ const app ={
             vm.data.productsData= response.data.products;
             vm.render();
           }).catch(err=>{
+            swal("取得產品資料錯誤", "請重新確認","warning");
             console.log(err);
         })
     },
@@ -358,8 +371,13 @@ const app ={
         this.addCart();//註冊產品加入購物車
         this.getCartData();//取得購物車資料
         this.checkForm();//初始化表單
-    }
+    },
+    //until js
+    toThousands(num){//轉千分位
+        var parts = num.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+    } 
 }
 app.init();
   
-   
