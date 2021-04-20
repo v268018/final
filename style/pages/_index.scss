@@ -1,0 +1,156 @@
+//navbar
+.navbar-nav .nav-item .nav-link {
+  color: black;
+}
+.navbar-nav .nav-item.active .nav-link,
+.navbar-nav .nav-item:hover .nav-link {
+  color: #6A33F8;
+}
+//icon{
+.material-icons{
+  color: #6A33F8;
+  font-weight: bold;
+}
+//black-Block
+.black-Block{
+    background: #000;
+    height: 40px;
+}
+//banner
+.banner{
+  position:relative;
+  background-image: url("https://github.com/hexschool/js-training/blob/main/%E7%AC%AC%E4%B9%9D%E9%80%B1%E4%B8%BB%E7%B7%9A%E4%BB%BB%E5%8B%99%E5%9C%96%E5%BA%AB/3ewLAKn.png?raw=true");
+  min-height: 420px;
+  @include bg-Cover;
+}
+.banner-Text{
+  position:absolute;
+  left: 50px;
+  bottom: 50px;
+}
+//家具比較
+.furniture-wrap{
+  background: #F8F8F8;
+  .furniture-table{
+    margin: 0 auto;
+    width: 50%;
+    @include pad{
+      width: 500px;
+    }
+    th,td{
+      text-align: center;
+      vertical-align: middle ;
+    }
+  }
+}
+//好評推薦
+.recommend{ 
+    background: #301E5F;
+    padding-top: 60px;
+    padding-bottom:80px;
+    .wrap{
+      max-width: 1110px;
+      margin: 0 auto;
+    }
+    .recommendation-scrollBar{
+      overflow-x: scroll;
+      cursor: grab;
+    }
+    .recommend-Top-List{
+      margin-left: 95px;
+    }
+    .recommend-Top-Card{
+
+      min-width:350px;
+      margin-left: 30px;
+    }
+    .recommend-content{
+      padding:13px 13px 0px 16px;
+    }
+    .recommend-person{
+      width: 40px;
+      height: 40px; 
+    }
+    .recommend-text{
+      font-size: 14px;
+      color:#6A33F8;
+    }
+}
+//運送
+.transport-warp{
+  max-width:700px;
+  margin: 0 auto;
+}
+.transport-card:nth-child(1),.transport-card:nth-child(2),.transport-card:nth-child(3){
+  position: relative;
+  ::after{
+   content:'';
+   position: absolute;   
+   top: 49px;
+   right: -55px; 
+   border: 10px solid #000000;
+   border-top: 10px solid transparent;
+   border-right: 10px solid transparent;
+   border-bottom: 10px solid transparent;
+   @include pad{
+    top: 0px;
+    right: 0px;   
+    border: 0px;
+   }
+ }
+ .transport-img{
+  width: 115px;
+  height: 115px;
+  border: 3px solid #000;
+  border-radius:50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .transport-icon{
+    font-size: 50px;
+    }
+  }
+}
+.transport-card:last-child{//因為有一個沒有要箭頭
+  position: relative;
+  .transport-img{
+   width: 115px;
+   height: 115px;
+   border: 3px solid #000;
+   border-radius:50%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   .transport-icon{
+     font-size: 50px;
+     }
+   }
+}
+//產品清單
+.selectProducts-Style{
+  min-width: 225px;
+  min-height: 40px;
+  text-indent:10px;
+  color:#818A91;
+  border: 1px solid #CED4DA;
+  border-radius: 5px;
+}
+.card-group {
+  margin-bottom: 28px;
+}
+.cart-Img {
+    max-width: 80px;
+    max-height: 80px;
+}
+//購物車清單
+.cart-wrap{
+  background: #F8F8F8;
+}
+.userForm-Container {
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+
+
+

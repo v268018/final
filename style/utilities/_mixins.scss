@@ -1,0 +1,10 @@
+@mixin pad{
+   @media(max-width:768px) {
+       @content
+   }
+};
+@mixin bg-Cover{
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
